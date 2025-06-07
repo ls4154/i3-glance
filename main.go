@@ -1,20 +1,55 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"go.i3wm.org/i3/v4"
 )
 
+func loadNameTable(path string) (map[string]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	var m map[string]string
+	dec := json.NewDecoder(f)
+	if err := dec.Decode(&m); err != nil {
+		return nil, err
+	}
+
+	// Convert all keys to lowercase for case-insensitive lookup
+	lower := make(map[string]string, len(m))
+	for k, v := range m {
+		lower[strings.ToLower(k)] = v
+	}
+	return lower, nil
+}
+
 func main() {
+	configPath := flag.String("config", "", "Path to app name JSON config file")
+	flag.Parse()
+
+	nameTable := map[string]string{}
+	if *configPath != "" {
+		table, err := loadNameTable(*configPath)
+		if err != nil {
+			log.Fatalf("failed to load config: %v", err)
+		}
+		nameTable = table
+	}
+
 	for sub := i3.Subscribe(i3.WindowEventType); sub.Next(); {
 		event := sub.Event()
 		if winEvent, ok := event.(*i3.WindowEvent); ok {
 			switch winEvent.Change {
 			case "move", "new", "title", "close":
-				err := Rename()
+				err := Rename(nameTable)
 				if err != nil {
 					log.Printf("failed to rename workspaces: %s", err)
 				}
@@ -23,7 +58,7 @@ func main() {
 	}
 }
 
-func Rename() error {
+func Rename(nameTable map[string]string) error {
 	wsNum, err := getWorkspaceNumberMap()
 	if err != nil {
 		return err
@@ -49,7 +84,11 @@ func Rename() error {
 
 		windowNames := make([]string, 0, len(ws.Windows))
 		for _, w := range ws.Windows {
-			windowNames = append(windowNames, w.WindowProperties.Class)
+			name := w.WindowProperties.Class
+			if nm, ok := nameTable[strings.ToLower(name)]; ok {
+				name = nm
+			}
+			windowNames = append(windowNames, name)
 		}
 		newName := fmt.Sprintf("%d: %s", num, strings.Join(windowNames, "|"))
 
