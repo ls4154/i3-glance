@@ -1,0 +1,20 @@
+{
+    "x-terminal-emulator": "\uf120",
+    "gnome-terminal": "\uf120",
+    "alacritty": "\uf120",
+    "termite": "\uf120",
+
+    "firefox": "\uf269",
+    "google-chrome": "\uf268",
+    "chormium": "\uf268",
+
+    "nautilus": "\uf07c",
+    "thunar": "\uf07c",
+
+    "leafpad": "\uf044",
+    "gedit": "\uf044",
+    "mousepad": "\uf044",
+
+    "code": "\uf121",
+    "dev.zed.zed": "\uf121"
+}
