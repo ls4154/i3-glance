@@ -1,6 +1,6 @@
 module github.com/ls4154/i3-glance
 
-go 1.24.4
+go 1.23.0
 
 require go.i3wm.org/i3/v4 v4.24.0
 
