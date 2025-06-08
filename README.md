@@ -2,6 +2,12 @@
 
 i3-glance is a lightweight daemon for the i3 window manager that automatically renames workspaces based on the applications running in each workspace.
 
+
+Example screenshot with fontawesome icons:
+
+![example](example.png)
+
+
 ## Install
 
 Using go install:
@@ -21,13 +27,13 @@ go build .
 ## Usage
 
 ```sh
-./i3-glance --config app-icons.json &
+./i3-glance --config config.json &
 ```
 
 Or add to your i3 config for automatic startup:
 
 ```sh
-exec --no-startup-id i3-glance --config ~/.config/i3/app-icons.json
+exec --no-startup-id i3-glance --config ~/path/to/config.json
 ```
 
-See the included `app-icons.json` file for a sample config.
+See the included example json config files for how to set up application icons and workspace names.
