@@ -37,6 +37,7 @@ func loadConfig(path string) (*Config, error) {
 	for k, v := range cfg.AppNames {
 		lower[strings.ToLower(k)] = v
 	}
+	cfg.AppNames = lower
 	return cfg, nil
 }
 
