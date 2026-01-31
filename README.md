@@ -27,8 +27,10 @@ go build .
 ## Usage
 
 ```sh
-./i3-glance --config config.toml &
+./i3-glance &
 ```
+
+By default, config is loaded from `~/.config/i3-glance/config.toml`. Use `--config` to specify a different path.
 
 See the included example toml config files for how to set up application icons and workspace names.
 
@@ -37,7 +39,7 @@ See the included example toml config files for how to set up application icons a
 Add to your `~/.config/i3/config`:
 
 ```
-exec --no-startup-id i3-glance --config ~/.config/i3-glance/config.toml
+exec --no-startup-id i3-glance
 
 bar {
     # Use FontAwesome for icons (check your font name with fc-list)

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"slices"
 	"strings"
 	"syscall"
@@ -35,8 +37,23 @@ func loadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
+func getDefaultConfigPath() string {
+	configDir := os.Getenv("XDG_CONFIG_HOME")
+	if configDir == "" {
+		if home, err := os.UserHomeDir(); err == nil {
+			configDir = filepath.Join(home, ".config")
+		}
+	}
+
+	if configDir == "" {
+		return ""
+	}
+
+	return filepath.Join(configDir, "i3-glance", "config.toml")
+}
+
 func main() {
-	configPath := flag.String("config", "", "path to config file")
+	pathFlag := flag.String("config", "", "path to config file")
 	flag.Parse()
 
 	cfg := &Config{
@@ -44,12 +61,21 @@ func main() {
 		Unique:    false,
 		AppNames:  map[string]string{},
 	}
-	if *configPath != "" {
-		c, err := loadConfig(*configPath)
+
+	cfgPath := *pathFlag
+	if cfgPath == "" {
+		cfgPath = getDefaultConfigPath()
+	}
+	if cfgPath != "" {
+		c, err := loadConfig(cfgPath)
 		if err != nil {
-			log.Fatalf("failed to load config: %v", err)
+			if *pathFlag != "" || !errors.Is(err, os.ErrNotExist) {
+				log.Printf("failed to load config: %v", err)
+				os.Exit(1)
+			}
+		} else {
+			cfg = c
 		}
-		cfg = c
 	}
 
 	sigChan := make(chan os.Signal, 1)
@@ -68,7 +94,7 @@ func main() {
 		if winEvent, ok := event.(*i3.WindowEvent); ok {
 			switch winEvent.Change {
 			case "move", "new", "title", "close":
-				err := Rename(cfg)
+				err := rename(cfg)
 				if err != nil {
 					log.Printf("failed to rename workspaces: %s", err)
 				}
@@ -77,7 +103,7 @@ func main() {
 	}
 }
 
-func Rename(cfg *Config) error {
+func rename(cfg *Config) error {
 	wsNum, err := getWorkspaceNumberMap()
 	if err != nil {
 		return err
