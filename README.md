@@ -27,13 +27,21 @@ go build .
 ## Usage
 
 ```sh
-./i3-glance --config config.json &
+./i3-glance --config config.toml &
 ```
 
-Or add to your i3 config for automatic startup:
+See the included example toml config files for how to set up application icons and workspace names.
 
-```sh
-exec --no-startup-id i3-glance --config ~/path/to/config.json
+## i3 Config Example
+
+Add to your `~/.config/i3/config`:
+
 ```
+exec --no-startup-id i3-glance --config ~/.config/i3-glance/config.toml
 
-See the included example json config files for how to set up application icons and workspace names.
+bar {
+    # Use FontAwesome for icons (check your font name with fc-list)
+    font pango:DejaVu Sans Mono, Font Awesome 7 Free 10
+    status_command i3status
+}
+```

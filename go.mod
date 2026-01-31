@@ -2,7 +2,10 @@ module github.com/ls4154/i3-glance
 
 go 1.23.0
 
-require go.i3wm.org/i3/v4 v4.24.0
+require (
+	github.com/BurntSushi/toml v1.6.0
+	go.i3wm.org/i3/v4 v4.24.0
+)
 
 require (
 	github.com/BurntSushi/xgb v0.0.0-20210121224620-deaf085860bc // indirect

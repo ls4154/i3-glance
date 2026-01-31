@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/BurntSushi/toml"
 	"go.i3wm.org/i3/v4"
 )
 
@@ -21,18 +21,10 @@ type Config struct {
 }
 
 func loadConfig(path string) (*Config, error) {
-	f, err := os.Open(path)
-	if err != nil {
+	var cfg Config
+	if _, err := toml.DecodeFile(path, &cfg); err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	var cfg *Config
-	dec := json.NewDecoder(f)
-	if err := dec.Decode(&cfg); err != nil {
-		return nil, err
-	}
-
-	log.Printf("cfg %+v", cfg)
 
 	// Convert all keys to lowercase for case-insensitive lookup
 	lower := make(map[string]string, len(cfg.AppNames))
@@ -40,7 +32,7 @@ func loadConfig(path string) (*Config, error) {
 		lower[strings.ToLower(k)] = v
 	}
 	cfg.AppNames = lower
-	return cfg, nil
+	return &cfg, nil
 }
 
 func main() {
