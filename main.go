@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"slices"
 	"strings"
+	"syscall"
 
 	"go.i3wm.org/i3/v4"
 )
@@ -57,6 +59,17 @@ func main() {
 		}
 		cfg = c
 	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigChan
+		log.Println("received shutdown signal, restoring workspace names...")
+		if err := restoreWorkspaceNames(); err != nil {
+			log.Printf("failed to restore workspace names: %s", err)
+		}
+		os.Exit(0)
+	}()
 
 	for sub := i3.Subscribe(i3.WindowEventType); sub.Next(); {
 		event := sub.Event()
@@ -195,4 +208,32 @@ func buildRenameCommand(oldName, newName string) string {
 	oldNameEscaped := strings.ReplaceAll(oldName, "\"", "\\\"")
 	newNameEscaped := strings.ReplaceAll(newName, "\"", "\\\"")
 	return fmt.Sprintf("rename workspace \"%s\" to \"%s\"", oldNameEscaped, newNameEscaped)
+}
+
+func restoreWorkspaceNames() error {
+	workspaces, err := i3.GetWorkspaces()
+	if err != nil {
+		return err
+	}
+
+	commands := make([]string, 0, len(workspaces))
+	for _, ws := range workspaces {
+		if ws.Name == "__i3_scratch" {
+			continue
+		}
+		newName := fmt.Sprintf("%d", ws.Num)
+		if ws.Name != newName {
+			commands = append(commands, buildRenameCommand(ws.Name, newName))
+		}
+	}
+
+	if len(commands) > 0 {
+		fullCmd := strings.Join(commands, "; ")
+		_, err := i3.RunCommand(fullCmd)
+		if err != nil {
+			return fmt.Errorf("failed to run i3 command: %w", err)
+		}
+	}
+
+	return nil
 }
