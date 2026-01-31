@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -11,28 +10,21 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/BurntSushi/toml"
 	"go.i3wm.org/i3/v4"
 )
 
 type Config struct {
-	Separator string            `json:"separator"`
-	Unique    bool              `json:"unique"`
-	AppNames  map[string]string `json:"app_names"`
+	Separator string            `toml:"separator"`
+	Unique    bool              `toml:"unique"`
+	AppNames  map[string]string `toml:"app_names"`
 }
 
 func loadConfig(path string) (*Config, error) {
-	f, err := os.Open(path)
-	if err != nil {
+	var cfg Config
+	if _, err := toml.DecodeFile(path, &cfg); err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	var cfg *Config
-	dec := json.NewDecoder(f)
-	if err := dec.Decode(&cfg); err != nil {
-		return nil, err
-	}
-
-	log.Printf("cfg %+v", cfg)
 
 	// Convert all keys to lowercase for case-insensitive lookup
 	lower := make(map[string]string, len(cfg.AppNames))
@@ -40,7 +32,7 @@ func loadConfig(path string) (*Config, error) {
 		lower[strings.ToLower(k)] = v
 	}
 	cfg.AppNames = lower
-	return cfg, nil
+	return &cfg, nil
 }
 
 func main() {
@@ -122,7 +114,9 @@ func Rename(cfg *Config) error {
 		}
 		newName := fmt.Sprintf("%d: %s", num, strings.Join(windowNames, cfg.Separator))
 
-		commands = append(commands, buildRenameCommand(ws.Workspace.Name, newName))
+		if ws.Workspace.Name != newName {
+			commands = append(commands, buildRenameCommand(ws.Workspace.Name, newName))
+		}
 	}
 
 	if len(commands) > 0 {

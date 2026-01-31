@@ -1,0 +1,48 @@
+separator = "|"
+unique = false
+
+[app_names]
+# Terminals
+xterm = "term"
+uxterm = "term"
+gnome-terminal = "term"
+alacritty = "term"
+termite = "term"
+lxterminal = "term"
+
+# Browsers
+firefox = "firefox"
+google-chrome = "chrome"
+chromium = "chromium"
+
+# File managers
+nautilus = "file"
+thunar = "file"
+
+# Text editors
+leafpad = "editor"
+gedit = "editor"
+mousepad = "editor"
+
+# Office
+libreoffice-startcenter = "office"
+libreoffice-writer = "office"
+libreoffice-draw = "office"
+libreoffice-calc = "office"
+
+# Documents
+evince = "pdf"
+
+# Image viewers
+sxiv = "image"
+ristretto = "image"
+
+# Media
+vlc = "vlc"
+
+# Email
+thunderbird = "mail"
+
+# Code editors
+code = "vscode"
+"dev.zed.zed" = "zed"
