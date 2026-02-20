@@ -17,9 +17,11 @@ import (
 )
 
 type Config struct {
-	Separator string            `toml:"separator"`
-	Unique    bool              `toml:"unique"`
-	AppNames  map[string]string `toml:"app_names"`
+	Separator  string              `toml:"separator"`
+	Unique     bool                `toml:"unique"`
+	Ignore     map[string]struct{} `toml:"-"`
+	IgnoreList []string            `toml:"ignore"`
+	AppNames   map[string]string   `toml:"app_names"`
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -34,6 +36,11 @@ func loadConfig(path string) (*Config, error) {
 		lower[strings.ToLower(k)] = v
 	}
 	cfg.AppNames = lower
+
+	cfg.Ignore = make(map[string]struct{}, len(cfg.IgnoreList))
+	for _, s := range cfg.IgnoreList {
+		cfg.Ignore[strings.ToLower(s)] = struct{}{}
+	}
 	return &cfg, nil
 }
 
@@ -130,6 +137,9 @@ func rename(cfg *Config) error {
 		windowNames := make([]string, 0, len(ws.Windows))
 		for _, w := range ws.Windows {
 			name := w.WindowProperties.Class
+			if _, ok := cfg.Ignore[strings.ToLower(name)]; ok {
+				continue
+			}
 			if nm, ok := cfg.AppNames[strings.ToLower(name)]; ok {
 				name = nm
 			}

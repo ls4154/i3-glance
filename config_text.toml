@@ -1,11 +1,13 @@
 separator = "|"
 unique = false
+ignore = ["xfce4-notifyd", "xfce4-panel", "wrapper-2.0"]
 
 [app_names]
 # Terminals
 xterm = "term"
 uxterm = "term"
 gnome-terminal = "term"
+xfce4-terminal = "term"
 alacritty = "term"
 termite = "term"
 lxterminal = "term"

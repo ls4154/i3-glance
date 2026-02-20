@@ -1,11 +1,13 @@
 separator = "|"
 unique = false
+ignore = ["xfce4-notifyd", "xfce4-panel", "wrapper-2.0"]
 
 [app_names]
 # Terminals
 xterm = "\uf120"
 uxterm = "\uf120"
 gnome-terminal = "\uf120"
+xfce4-terminal = "\uf120"
 alacritty = "\uf120"
 termite = "\uf120"
 lxterminal = "\uf120"
@@ -35,6 +37,10 @@ libreoffice-calc = "\uf1c3"
 
 # Documents
 evince = "\uf1c1"
+zathura = "\uf1c1"
+
+# Archive Managers
+xarchiver = "\uf1c6"
 
 # Image viewers
 sxiv = "\uf03e"
@@ -63,3 +69,5 @@ keepassxc = "\uf084"
 # System
 nm-connection-editor = "\uf6ff"
 blueman-manager = "\uf293"
+pavucontrol = "\uf6a8"
+lxappearance = "\uf53f"
